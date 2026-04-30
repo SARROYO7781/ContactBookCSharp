@@ -1,4 +1,7 @@
 
+using System.Diagnostics;
+using Contact;
+
 namespace ContactBook;
 
 public class ContactBook
@@ -16,23 +19,26 @@ public class ContactBook
     public const string DEDUPLICATE_CONTACT = "M";
     public const string EXIT = "X";
 
-    public readonly string[] COMMANDS = new string[]
+    public readonly string[] COMMANDS =
     {
-    NEXT_PAGE, PREV_PAGE, GOTO_PAGE, PAGE_SIZE, CREATE_CONTACT,
-    REVIEW_CONTACT, UPDATE_CONTACT, DELETE_CONTACT, FIND_CONTACT,
-    ORDER_CONTACT, DEDUPLICATE_CONTACT,EXIT
+        NEXT_PAGE, PREV_PAGE, GOTO_PAGE, PAGE_SIZE, CREATE_CONTACT,
+        REVIEW_CONTACT, UPDATE_CONTACT, DELETE_CONTACT, FIND_CONTACT,
+        ORDER_CONTACT, DEDUPLICATE_CONTACT, EXIT
     };
 
-    public ContactBook()
+    private List<Contact.Contact> allContacts;
+
+    public ContactBook(List<Contact.Contact>? contacts = null)
     {
-        
+        allContacts = contacts ?? new List<Contact.Contact>();
     }
 
     public void Start()
     {
-        ShowWelcomScreen();
+        ShowWelcomeScreen();
 
         string input;
+
         do
         {
             ShowContacts();
@@ -42,22 +48,23 @@ public class ContactBook
                 ShowInputOptions();
                 input = GetInput();
             }
-            while(!IsValidInput(input));
+            while (!IsValidInput(input));
 
             ProcessInput(input);
 
-            do
+            if (input == EXIT)
             {
-                ShowInputOptions();
+                if (ConfirmExit())
+                {
+                    ShowExitScreen();
+                    break;
+                }
             }
-            while(!ConfirmExit());
-
-            ShowExitScreen();
         }
-        while(false);
+        while (true);
     }
 
-    private void ShowWelcomScreen()
+    private void ShowWelcomeScreen()
     {
         Console.WriteLine("Welcome to Sebastian's Contact Book!");
         PressEnterToContinue();
@@ -65,8 +72,36 @@ public class ContactBook
 
     private void ShowContacts()
     {
-        
+         Console.Clear();
+        if(allContacts.Count <= 0)
+        {
+            Console.WriteLine("No Contacts Found");
+        }
+        else
+        {
+            int indexCol = allContacts.Count.ToString().Length;
+            int fnameCol = allContacts.Max(c => c.GetFName()?.Length ??0);
+            int lnameCol = allContacts.Max(c => c.GetLName()?.Length ??0);
+            int phoneCol = allContacts.Max(c => c.GetPhone()?.Length ??0);
+            int emailCol = allContacts.Max(c => c.GetEmail()?.Length ??0);
+
+            for(int i = 0; i < allContacts.Count; i++)
+            {
+                Contact.Contact c = allContacts[i];
+                Console.WriteLine(""
+            + "{0, "+ indexCol + "}"
+            + "{1, "+ fnameCol + "}"
+            + "{2, "+ lnameCol + "}"
+            + "{3, "+ phoneCol + "}"
+            + "{4, "+ emailCol + "}",
+            i, c.GetFName(), c.GetFName(), c.GetLName(), c.GetPhone(), c.GetEmail());
+            
+            }
+        }
+
     }
+        
+
 
     private void ShowInputOptions()
     {
@@ -75,34 +110,36 @@ public class ContactBook
 
     private string GetInput()
     {
-        return "";
+        return Console.ReadLine()?.Trim().ToUpper() ?? "";
     }
 
     private bool IsValidInput(string input)
     {
-        return true;
+        return COMMANDS.Contains(input);
     }
 
     private void ProcessInput(string input)
     {
-      
+        Console.WriteLine($"You selected: {input}");
     }
 
     private bool ConfirmExit()
     {
-       return true;
+        Console.Write("Are you sure you want to exit? (Y/N): ");
+        string answer = Console.ReadLine()?.Trim().ToUpper() ?? "";
+
+        return answer == "Y";
     }
 
     private void ShowExitScreen()
     {
-        
+        Console.WriteLine("Thank you for using Sebastian's Contact Book!");
     }
+
     private void PressEnterToContinue()
     {
-        Console.Write("Press ENTER to continue");
-        while (Console.ReadKey(true).Key != ConsoleKey.Enter)
-        {
-            ;
-        }
+        Console.Write("Press ENTER to continue...");
+        while (Console.ReadKey(true).Key != ConsoleKey.Enter);
+        
     }
 }
