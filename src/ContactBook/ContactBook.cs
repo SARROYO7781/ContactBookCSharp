@@ -137,12 +137,20 @@ public class ContactBook
 
     private string GetInput()
     {
-        return Console.ReadLine()?.Trim().ToUpper() ?? string.Empty;
+        return Console.ReadLine()!.ToUpper();
     }
 
     private bool IsValidInput(string input)
     {
-        return COMMANDS.Contains(input);
+        if (!COMMANDS.Contains(input))
+        {
+            Console.WriteLine("ERROR: Invalid input. Please try again.");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     private void ProcessInput(string input)
