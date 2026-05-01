@@ -1,12 +1,18 @@
 
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using Contact;
 
 namespace ContactBook;
 
 public class ContactBook
 {
+    public const string YES = "Y";
+    public const string NO = "N";
+
+    public readonly string[] YES_NO = new string[] {YES, NO};
+
     public const string NEXT_PAGE = "+";
     public const string PREV_PAGE = "-";
     public const string GOTO_PAGE = "G";
@@ -39,13 +45,11 @@ public class ContactBook
         ShowWelcomeScreen();
 
         string input;
-
         do
         {
-            ShowContacts();
-
             do
-            {
+            {   
+                ShowContacts();
                 ShowInputOptions();
                 input = GetInput();
             }
@@ -145,7 +149,9 @@ public class ContactBook
         if (!COMMANDS.Contains(input))
         {
             Console.WriteLine("ERROR: Invalid input. Please try again.");
+            PressEnterToContinue();
             return false;
+
         }
         else
         {
@@ -155,15 +161,26 @@ public class ContactBook
 
     private void ProcessInput(string input)
     {
-        Console.WriteLine($"You selected: {input}");
+        switch (input)
+        {
+            case NEXT_PAGE: NextPage(); break;
+            case PREV_PAGE:PrevPage(); break;
+            case GOTO_PAGE:GotoPage(); break;
+            case PAGE_SIZE:PageSize(); break;
+            case CREATE_CONTACT:CreateConatact(); break;
+            case REVIEW_CONTACT:ReviewContact(); break;
+            case UPDATE_CONTACT:UpadateContact(); break;
+            case DELETE_CONTACT:Deletecontact(); break;
+            case FIND_CONTACT:FindContact(); break;
+            case ORDER_CONTACT:OrderContact(); break;
+            case DEDUPLICATE_CONTACT:DeduplicateContact(); break;
+            case EXIT:Exit(); break;
+            default: break;
+        }
     }
-
     private bool ConfirmExit()
     {
-        Console.Write("Are you sure you want to exit? (Y/N): ");
-        string answer = Console.ReadLine()?.Trim().ToUpper() ?? "";
-
-        return answer == "Y";
+        return Confirm("Do you want to exit?", NO);
     }
 
     private void ShowExitScreen()
@@ -177,4 +194,89 @@ public class ContactBook
         while (Console.ReadKey(true).Key != ConsoleKey.Enter);
         
     }
+
+    private void Exit()
+    {
+       Console.WriteLine("Exit");
+    }
+    private string GetOptions(string prompt, string[] validOptions, string defaultOption)
+    {
+        string options = string.Join{'/',validOptions};
+        Console.Write(prompt + $" [{options}] ({default}) ");
+        string option = Console.ReadLine()!.ToUpper();
+
+        if (string.IsNullOrWhiteSpace(option))  { option = defaultOption;}
+        
+        while (validOptions.Contains(option))
+        {
+            Console.WriteLine("ERROR: Invalid Option. Please try again.");
+            Console.Write(prompt);
+            option = Console.ReadLine()!.ToUpper();
+
+            if(string.IsNullOrWhiteSpace(option)) { option = defaultOption; }
+        }
+        return option;
+        }
+        
+        private bool Confirm(string prompt, string defaultOption)
+    {
+        return GetOptions(prompt, YES_NO, defaultOption) == YES;
+    }
+        
+
+    private void DeduplicateContact()
+    {
+        Console.WriteLine("Deduplicate Contact");
+    }
+
+    private void OrderContact()
+    {
+        Console.WriteLine("Order Contact");
+    }
+
+    private void FindContact()
+    {
+        Console.WriteLine("Find Contact");
+    }
+
+    private void Deletecontact()
+    {
+         Console.WriteLine("Delete Contact");
+    }
+
+    private void UpadateContact()
+    {
+       Console.WriteLine("Update Contacts");
+    }
+
+    private void ReviewContact()
+    {
+         Console.WriteLine("Review Contact");
+    }
+
+    private void CreateConatact()
+    {
+         Console.WriteLine("Create Contact");
+    }
+
+    private void PageSize()
+    {
+         Console.WriteLine("Page Size");
+    }
+
+    private void GotoPage()
+    {
+         Console.WriteLine("Goto Page");
+    }
+
+    private void PrevPage()
+    {
+       Console.WriteLine("Prev Page");
+    }
+
+    private void NextPage()
+    {
+        Console.WriteLine("Next Page");
+    }
+
 }
