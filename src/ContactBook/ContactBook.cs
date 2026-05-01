@@ -1,5 +1,6 @@
 
 using System.Diagnostics;
+using System.Drawing;
 using Contact;
 
 namespace ContactBook;
@@ -79,24 +80,43 @@ public class ContactBook
         }
         else
         {
-            int indexCol = allContacts.Count.ToString().Length;
-            int fnameCol = allContacts.Max(c => c.GetFName()?.Length ??0);
-            int lnameCol = allContacts.Max(c => c.GetLName()?.Length ??0);
-            int phoneCol = allContacts.Max(c => c.GetPhone()?.Length ??0);
-            int emailCol = allContacts.Max(c => c.GetEmail()?.Length ??0);
+            int indexCol = Math.Max("#".Length, allContacts.Count.ToString().Length);
+            int fnameCol = Math.Max("First Name".Length, allContacts.Max(c => c.GetFName()?.Length ??0));
+            int lnameCol = Math.Max("Last Name".Length, allContacts.Max(c => c.GetLName()?.Length ??0));
+            int phoneCol = Math.Max("Phone".Length, allContacts.Max(c => c.GetPhone()?.Length ??0));
+            int emailCol = Math.Max("Email".Length, allContacts.Max(c => c.GetEmail()?.Length ??0));
 
-            for(int i = 0; i < allContacts.Count; i++)
+            Console.WriteLine(""
+            + "{0, "+ -indexCol + "} "
+            + "{1, "+ -fnameCol + "} "
+            + "{2, "+ -lnameCol + "} "
+            + "{3, "+ -phoneCol + "} "
+            + "{4, "+ -emailCol + "} ",
+            "#", "First Name", "Last Name", "Phone", "Email");
+            Console.WriteLine(new string('-', (indexCol+2+fnameCol+2+lnameCol+2+phoneCol+2+emailCol)));
+
+            int n = allContacts.Count;
+            int page = 1;
+            int size = 10;
+            int pageCount = (int) Math.Max(1, Math.Ceiling(n/(double)size));
+            int s = Math.Clamp((page - 1) * size, 0, n);
+            int e = Math.Clamp(s + size, 0, n);
+
+            for(int i = s; i < e; i++)
             {
                 Contact.Contact c = allContacts[i];
+
                 Console.WriteLine(""
-            + "{0, "+ indexCol + "}"
-            + "{1, "+ fnameCol + "}"
-            + "{2, "+ lnameCol + "}"
-            + "{3, "+ phoneCol + "}"
-            + "{4, "+ emailCol + "}",
-            i, c.GetFName(), c.GetFName(), c.GetLName(), c.GetPhone(), c.GetEmail());
+            + "{0, "+ indexCol + "} "
+            + "{1, "+ fnameCol + "} "
+            + "{2, "+ lnameCol + "} "
+            + "{3, "+ phoneCol + "} "
+            + "{4, "+ emailCol + "} ",
+            (i +1), c.GetFName(), c.GetFName(), c.GetLName(), c.GetPhone(), c.GetEmail());
             
             }
+            Console.WriteLine();
+            Console.WriteLine($"Page{page} of {pageCount} ({s + 1}-{e} of {n})");
         }
 
     }
@@ -105,12 +125,19 @@ public class ContactBook
 
     private void ShowInputOptions()
     {
-        
-    }
+        string inputOption = ""
+        + $"[{NEXT_PAGE}] Next Page | [{CREATE_CONTACT}] Create Contact | [{DELETE_CONTACT}] Delete Contact | [{DEDUPLICATE_CONTACT}] Deduplicate Contacts\n"
+        + $"[{PREV_PAGE}] Prev Page | [{REVIEW_CONTACT}] Review Contact | [{FIND_CONTACT  }] Find Contacts  | [{PAGE_SIZE          }] Change page Size\n"
+        + $"[{GOTO_PAGE}] Goto Page | [{UPDATE_CONTACT}] Update contact | [{ORDER_CONTACT }] Order Contacts | [{EXIT               }] Exit\n"
+        + $"\n> ";
+
+        Console.WriteLine();
+        Console.Write(inputOption);
+    }    
 
     private string GetInput()
     {
-        return Console.ReadLine()?.Trim().ToUpper() ?? "";
+        return Console.ReadLine()?.Trim().ToUpper() ?? string.Empty;
     }
 
     private bool IsValidInput(string input)
