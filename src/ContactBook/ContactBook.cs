@@ -30,12 +30,14 @@ public class ContactBook
     private List<Contact> allContacts;
     private int page;
     private int size;
+    private bool isExit;
 
     public ContactBook(List<Contact>? contacts = null)
     {
         allContacts = contacts ?? new List<Contact>();
         page = 1;
         size = 10;
+        isExit = false;
     }
 
     public void Start()
@@ -119,8 +121,13 @@ public class ContactBook
                  + "{3, -" + phoneCol + "} "
                  + "{4, -" + emailCol + "} ",
                 (i + 1), c.GetFName(), c.GetLName(), c.GetPhone(), c.GetEmail());
-
             }
+
+            for(int i = 0; i < size - e + s; i++)
+            {
+                Console.WriteLine();
+            }
+
             Console.WriteLine();
             Console.WriteLine($"Page{page} of {pageCount} ({s + 1}-{e} of {n})");
         }
@@ -179,7 +186,7 @@ public class ContactBook
     }
     private bool ConfirmExit()
     {
-        return Confirm("Do you want to exit?", NO);
+        return (isExit) ? isExit = Confirm("Do you want to exit?", NO): false;
     }
 
     private void ShowExitScreen()
@@ -197,7 +204,24 @@ public class ContactBook
 
     private void Exit()
     {
-       Console.WriteLine("Exit");
+       isExit = true;
+    }
+
+    private int GetInt(string prompt, int min, int max)
+    {
+        string options = $"{min}-{max}";
+
+        Console.Write(prompt + $" [{options}] ");
+        string answer = Console.ReadLine()!;
+        int value;
+        
+        while (!int.TryParse(answer, out value) || value < min || value > max)
+        {
+            Console.WriteLine("ERROR: Invalid Option. Please try again.");
+             Console.Write(prompt + $" [{options}] ");
+            answer = Console.ReadLine()!.ToUpper();
+        }
+        return value;
     }
     private string GetOption(string prompt, string[] validOptions, string defaultOption)
     {
@@ -228,52 +252,17 @@ public class ContactBook
         return (int) Math.Max(1, Math.Ceiling(contacts.Count/ (double) size));
     }
 
-    private void DeduplicateContact()
+    private void NextPage()
     {
-        Console.WriteLine("Deduplicate Contact");
+        NextPage(allContacts, ref page, size);
+       
+    }
+    private void NextPage(List<Contact> contacts, ref int page, int size)
+    {
+         page = Math.Clamp(page + 1, 1, PageCount(contacts, size));
     }
 
-    private void OrderContact()
-    {
-        Console.WriteLine("Order Contact");
-    }
-
-    private void FindContact()
-    {
-        Console.WriteLine("Find Contact");
-    }
-
-    private void Deletecontact()
-    {
-         Console.WriteLine("Delete Contact");
-    }
-
-    private void UpadateContact()
-    {
-       Console.WriteLine("Update Contacts");
-    }
-
-    private void ReviewContact()
-    {
-         Console.WriteLine("Review Contact");
-    }
-
-    private void CreateConatact()
-    {
-         Console.WriteLine("Create Contact");
-    }
-
-    private void PageSize()
-    {
-         Console.WriteLine("Page Size");
-    }
-
-    private void GotoPage()
-    {
-         Console.WriteLine("Goto Page");
-    }
-
-    private void PrevPage()
+      private void PrevPage()
     {
         PrevPage(allContacts, ref page, size);
        
@@ -283,14 +272,59 @@ public class ContactBook
          page = Math.Clamp(page - 1, 1, PageCount(contacts, size));
     }
 
-    private void NextPage()
+    private void GotoPage()
     {
-        NextPage(allContacts, ref page, size);
-       
+        GotoPage(allContacts, ref page, size);
     }
-    private void NextPage(List<Contact> contacts, ref int page, int size)
+     private void GotoPage(List<Contact> contacts, ref int page, int size)
     {
-         page = Math.Clamp(page + 1, 1, PageCount(contacts, size));
+        page = GetInt("Enter page", 1, PageCount(contacts, size));
+    }
+
+     private void PageSize()
+    {
+        PageSize(ref size);
+    }
+
+    private void PageSize(ref int size)
+    {
+        int max = Console.WindowHeight - 10;
+        size = GetInt("Enter page size", 1, max);
+    }
+
+    private void CreateConatact()
+    {
+         Console.WriteLine("Create Contact");
+    }
+
+     private void ReviewContact()
+    {
+         Console.WriteLine("Review Contact");
+    }
+
+     private void UpadateContact()
+    {
+       Console.WriteLine("Update Contacts");
+    }
+
+     private void Deletecontact()
+    {
+         Console.WriteLine("Delete Contact");
+    }
+
+    private void FindContact()
+    {
+        Console.WriteLine("Find Contact");
+    }
+
+    private void OrderContact()
+    {
+        Console.WriteLine("Order Contact");
+    }
+
+     private void DeduplicateContact()
+    {
+        Console.WriteLine("Deduplicate Contact");
     }
 
 }
