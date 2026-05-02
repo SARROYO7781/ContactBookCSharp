@@ -2,7 +2,7 @@ using System.Collections;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 
-namespace Contact;
+
 public class Contact : IEquatable<Contact>
 {
     private string fname = default!;
@@ -93,4 +93,6 @@ public class Contact : IEquatable<Contact>
     {
          return HashCode.Combine(fname, lname, phone, email);
     }
+
+   
 }
