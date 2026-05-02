@@ -175,7 +175,7 @@ public class ContactBook
             case PAGE_SIZE:PageSize(); break;
             case CREATE_CONTACT:CreateConatact(); break;
             case REVIEW_CONTACT:ReviewContact(); break;
-            case UPDATE_CONTACT:UpadateContact(); break;
+            case UPDATE_CONTACT:UpdateContact(); break;
             case DELETE_CONTACT:Deletecontact(); break;
             case FIND_CONTACT:FindContact(); break;
             case ORDER_CONTACT:OrderContact(); break;
@@ -283,28 +283,136 @@ public class ContactBook
 
      private void PageSize()
     {
-        PageSize(ref size);
+        PageSize(ref page, ref size);
     }
 
-    private void PageSize(ref int size)
+    private void PageSize(ref int page,ref int size)
     {
         int max = Console.WindowHeight - 10;
         size = GetInt("Enter page size", 1, max);
+        page = 1;
     }
 
     private void CreateConatact()
     {
+         Console.Clear();
+         Console.WriteLine(new string('#', 80));
          Console.WriteLine("Create Contact");
+         Console.WriteLine(new string('#', 80));
+         Console.WriteLine();
+
+          Console.Write("Enter fist name");
+          string fname = Console.ReadLine()!;
+           Console.Write("Enter last name");
+          string lname = Console.ReadLine()!;
+           Console.Write("Enter phone number");
+          string phone = Console.ReadLine()!;
+           Console.Write("Enter email");
+          string email = Console.ReadLine()!;
+
+          if(Confirm("Do you wnat to create this contact?", YES))
+        {
+            Contact c = new Contact(fname, lname, phone, email);
+            allContacts.Add(c);
+            page = PageCount(allContacts, size);
+            Console.WriteLine("Operation successfull: Contact Created");
+        }
+        else
+        {
+            Console.WriteLine("Operation cancelled: Contact not craeted");
+        }
+        Console.WriteLine();
+        PressEnterToContinue();
     }
 
-     private void ReviewContact()
+    private void ReviewContact()
     {
+        int index = GetInt("Enter index", 1, allContacts.Count) - 1;
+
+        Console.Clear();
+         Console.WriteLine(new string('#', 80));
          Console.WriteLine("Review Contact");
+         Console.WriteLine(new string('#', 80));
+         Console.WriteLine();
+
+        ReviewContact(index);
+
+        Console.WriteLine();
+        PressEnterToContinue();
     }
 
-     private void UpadateContact()
+     private void ReviewContact(int index)
     {
-       Console.WriteLine("Update Contacts");
+        Contact c =allContacts[index]
+
+        Console.WriteLine($"First Name: {c.GetFName}");
+        Console.WriteLine($"   Last name: {c.GetLName}");
+        Console.WriteLine($"       Phone: {c.GetPhone}");
+        Console.WriteLine($"       Email: {c.GetEmail}");
+        Console.WriteLine();
+    }
+
+     private void UpdateContact()
+    {
+       int index = GetInt("Enter index", 1, allContacts.Count) -1;
+
+        Console.Clear();
+
+         Console.WriteLine(new string('#', 80));
+         Console.WriteLine("Update Contact");
+         Console.WriteLine(new string('#', 80));
+         Console.WriteLine();
+
+        UpdateContact(index);
+        Console.WriteLine();
+        PressEnterToContinue();
+    }
+
+     private void UpdateContact(int index)
+    {
+        Contact c =allContacts[index];
+
+        string fname = c.GetFName();
+        string lname = c.GetLName();
+        string phone = c.GetPhone();
+        string email = c.GetEmail();
+
+         ReviewContact(index);
+         
+         Console.WriteLine();
+
+        if (Confirm("Do you want to edit the first name? ", NO))
+        {
+            Console.Write("Enter first name: ");
+            fname = Console.ReadLine()!;      
+        }
+        if (Confirm("Do you want to edit the last name? ", NO))
+        {
+            Console.Write("Enter last name: ");
+            lname = Console.ReadLine()!;      
+        }
+        if (Confirm("Do you want to edit the phone number? ", NO))
+        {
+            Console.Write("Enter phone number: ");
+            phone = Console.ReadLine()!;      
+        }
+        if (Confirm("Do you want to edit the email? ", NO))
+        {
+            Console.Write("Enter email: ");
+            email = Console.ReadLine()!;     
+        }
+       if(Confirm("Do you wnat to update this contact?", YES))
+        {
+            c.SetFName(fname);
+            c.SetLName(lname);
+            c.SetPhone(phone);
+            c.SetEmail(email);
+            Console.WriteLine("Operation successfull: Contact updated");
+        }
+        else
+        {
+            Console.WriteLine("Operation cancelled: Contact not updated");
+        }
     }
 
      private void Deletecontact()
