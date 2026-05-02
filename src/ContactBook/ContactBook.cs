@@ -27,6 +27,7 @@ public class ContactBook
         ORDER_CONTACT, DEDUPLICATE_CONTACT, EXIT
     };
 
+    private List<Contact> filteredContacts;
     private List<Contact> allContacts;
     private int page;
     private int size;
@@ -34,7 +35,8 @@ public class ContactBook
 
     public ContactBook(List<Contact>? contacts = null)
     {
-        allContacts = contacts ?? new List<Contact>();
+        allContacts = (contacts == null) ? new List<Contact>() : contacts;
+        filteredContacts = allContacts;
         page = 1;
         size = 10;
         isExit = false;
@@ -76,7 +78,7 @@ public class ContactBook
     }
     private void ShowContacts()
     {
-        ShowContacts(allContacts, page, size);
+        ShowContacts(filteredContacts, page, size);
     }
 
     private void ShowContacts(List<Contact> contacts, int page, int size)
@@ -89,11 +91,11 @@ public class ContactBook
         }
         else
         {
-            int indexCol = Math.Max("#".Length, allContacts.Count.ToString().Length);
-            int fnameCol = Math.Max("First Name".Length, allContacts.Max(c => c.GetFName()?.Length ?? 0));
-            int lnameCol = Math.Max("Last Name".Length, allContacts.Max(c => c.GetLName()?.Length ?? 0));
-            int phoneCol = Math.Max("Phone".Length, allContacts.Max(c => c.GetPhone()?.Length ?? 0));
-            int emailCol = Math.Max("Email".Length, allContacts.Max(c => c.GetEmail()?.Length ?? 0));
+            int indexCol = Math.Max("#".Length, filteredContacts.Count.ToString().Length);
+            int fnameCol = Math.Max("First Name".Length, filteredContacts.Max(c => c.GetFName()?.Length ?? 0));
+            int lnameCol = Math.Max("Last Name".Length, filteredContacts.Max(c => c.GetLName()?.Length ?? 0));
+            int phoneCol = Math.Max("Phone".Length, filteredContacts.Max(c => c.GetPhone()?.Length ?? 0));
+            int emailCol = Math.Max("Email".Length, filteredContacts.Max(c => c.GetEmail()?.Length ?? 0));
 
 
             Console.WriteLine(""
@@ -105,14 +107,14 @@ public class ContactBook
              "#", "First Name", "Last Name", "Phone", "Email");
             Console.WriteLine(new string('-', (indexCol + 2 + fnameCol + 2 + lnameCol + 2 + phoneCol + 2 + emailCol)));
 
-            int n = allContacts.Count;
+            int n = filteredContacts.Count;
             int pageCount = PageCount(contacts, size);
             int s = Math.Clamp((page - 1) * size, 0, n);
             int e = Math.Clamp(s + size, 0, n);
 
             for (int i = s; i < e; i++)
             {
-                Contact c = allContacts[i];
+                Contact c = filteredContacts[i];
 
                 Console.WriteLine(""
                  + "{0, " + indexCol + "} "
@@ -176,7 +178,7 @@ public class ContactBook
             case CREATE_CONTACT:CreateConatact(); break;
             case REVIEW_CONTACT:ReviewContact(); break;
             case UPDATE_CONTACT:UpdateContact(); break;
-            case DELETE_CONTACT:Deletecontact(); break;
+            case DELETE_CONTACT:DeleteContact(); break;
             case FIND_CONTACT:FindContact(); break;
             case ORDER_CONTACT:OrderContact(); break;
             case DEDUPLICATE_CONTACT:DeduplicateContact(); break;
@@ -254,7 +256,7 @@ public class ContactBook
 
     private void NextPage()
     {
-        NextPage(allContacts, ref page, size);
+        NextPage(filteredContacts, ref page, size);
        
     }
     private void NextPage(List<Contact> contacts, ref int page, int size)
@@ -264,7 +266,7 @@ public class ContactBook
 
       private void PrevPage()
     {
-        PrevPage(allContacts, ref page, size);
+        PrevPage(filteredContacts, ref page, size);
        
     }
     private void PrevPage(List<Contact> contacts, ref int page, int size)
@@ -274,7 +276,7 @@ public class ContactBook
 
     private void GotoPage()
     {
-        GotoPage(allContacts, ref page, size);
+        GotoPage(filteredContacts, ref page, size);
     }
      private void GotoPage(List<Contact> contacts, ref int page, int size)
     {
@@ -310,11 +312,13 @@ public class ContactBook
            Console.Write("Enter email");
           string email = Console.ReadLine()!;
 
+           Console.WriteLine();
+
           if(Confirm("Do you wnat to create this contact?", YES))
         {
             Contact c = new Contact(fname, lname, phone, email);
-            allContacts.Add(c);
-            page = PageCount(allContacts, size);
+            filteredContacts.Add(c);
+            page = PageCount(filteredContacts, size);
             Console.WriteLine("Operation successfull: Contact Created");
         }
         else
@@ -327,7 +331,7 @@ public class ContactBook
 
     private void ReviewContact()
     {
-        int index = GetInt("Enter index", 1, allContacts.Count) - 1;
+        int index = GetInt("Enter index", 1, filteredContacts.Count) - 1;
 
         Console.Clear();
          Console.WriteLine(new string('#', 80));
@@ -343,7 +347,7 @@ public class ContactBook
 
      private void ReviewContact(int index)
     {
-        Contact c =allContacts[index]
+        Contact c =filteredContacts[index];
 
         Console.WriteLine($"First Name: {c.GetFName}");
         Console.WriteLine($"   Last name: {c.GetLName}");
@@ -354,7 +358,7 @@ public class ContactBook
 
      private void UpdateContact()
     {
-       int index = GetInt("Enter index", 1, allContacts.Count) -1;
+       int index = GetInt("Enter index", 1, filteredContacts.Count) -1;
 
         Console.Clear();
 
@@ -370,7 +374,7 @@ public class ContactBook
 
      private void UpdateContact(int index)
     {
-        Contact c =allContacts[index];
+        Contact c =filteredContacts[index];
 
         string fname = c.GetFName();
         string lname = c.GetLName();
@@ -401,7 +405,10 @@ public class ContactBook
             Console.Write("Enter email: ");
             email = Console.ReadLine()!;     
         }
-       if(Confirm("Do you wnat to update this contact?", YES))
+
+         Console.WriteLine();
+
+       if(Confirm("Do you wnat to update this contact?", NO))
         {
             c.SetFName(fname);
             c.SetLName(lname);
@@ -415,14 +422,46 @@ public class ContactBook
         }
     }
 
-     private void Deletecontact()
+     private void DeleteContact()
     {
+       int index = GetInt("Enter index", 1, filteredContacts.Count) -1;
+
+        Console.Clear();
+
+         Console.WriteLine(new string('#', 80));
          Console.WriteLine("Delete Contact");
+         Console.WriteLine(new string('#', 80));
+         Console.WriteLine();
+
+        DeleteContact(index);
+
+        Console.WriteLine();
+        PressEnterToContinue();
+    }
+
+     private void DeleteContact(int index)
+    {
+        Contact c =filteredContacts[index];
+
+         ReviewContact(index);
+         
+         Console.WriteLine();
+
+       if(Confirm("Do you wnat to delete this contact?", NO))
+        {
+            filteredContacts.Remove(c);
+            Console.WriteLine("Operation successfull: Contact deleted");
+        }
+        else
+        {
+            Console.WriteLine("Operation cancelled: Contact not deleted");
+        }
     }
 
     private void FindContact()
     {
-        Console.WriteLine("Find Contact");
+        Console.Write("Enter search term: ");
+        string searchTerm = Console.ReadLine()!.ToLower();
     }
 
     private void OrderContact()
