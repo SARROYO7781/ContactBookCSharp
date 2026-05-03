@@ -1,5 +1,7 @@
 namespace ContactBook;
 
+using contactsBook;
+using static contactsBook.ContactComparer;
 public class ContactBook
 {
     public const string YES = "Y";
@@ -414,11 +416,11 @@ public class ContactBook
             c.SetLName(lname);
             c.SetPhone(phone);
             c.SetEmail(email);
-            Console.WriteLine("Operation successfull: Contact updated");
+            Console.WriteLine("Operation successfull: Contact updated.");
         }
         else
         {
-            Console.WriteLine("Operation cancelled: Contact not updated");
+            Console.WriteLine("Operation cancelled: Contact not updated.");
         }
     }
 
@@ -450,23 +452,47 @@ public class ContactBook
        if(Confirm("Do you wnat to delete this contact?", NO))
         {
             filteredContacts.Remove(c);
-            Console.WriteLine("Operation successfull: Contact deleted");
+            Console.WriteLine("Operation successfull: Contact deleted.");
         }
         else
         {
-            Console.WriteLine("Operation cancelled: Contact not deleted");
+            Console.WriteLine("Operation cancelled: Contact not deleted.");
         }
     }
 
     private void FindContact()
     {
-        Console.Write("Enter search term: ");
+        Console.Write("Enter search term (Clear): ");
         string searchTerm = Console.ReadLine()!.ToLower();
+
+        if(Confirm("Do you wnat to search contacts?", YES))
+        {
+            filteredContacts = allContacts.FindAll(c => 
+            (c.GetFName()+ c.GetLName()+c.GetPhone()+c.GetEmail()).ToLower().Contains(searchTerm));
+        
+            page = 1;
+
+            Console.WriteLine("Operation successfull: Contacts search.");
+        }
+        else
+        {
+            Console.WriteLine("Operation cancelled: Contacts not searched.");
+        }
+        PressEnterToContinue();
     }
 
     private void OrderContact()
     {
-        Console.WriteLine("Order Contact");
+        SortType[] sortTypes = new SortType[]
+        {
+            SortType.FName, SortType.LName, SortType.Phone, SortType.Email
+        };
+
+    int index= GetInt("Sort Contacts by [0] First Name [1 Last Name [2] Phone [3] Email", 0, 3);
+
+    ContactComparer ccp= new ContactComparer(sortTypes[index]);
+    allContacts.Sort(ccp);
+    filteredContacts.Sort(ccp);
     }
 
      private void DeduplicateContact()
