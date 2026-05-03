@@ -1,2 +1,0 @@
-# ContactBookCSharp
-Simple contact Book
