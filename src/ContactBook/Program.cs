@@ -1,10 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Diagnostics.Contracts;
+
 namespace ContactBook;
 
 public class Program
 {
     public static void Main()
     {
-        Contact c1 = new Contact();
+
+      var cb = new ContactBook(ContactSeed.Contacts);
+      cb.Start();
+
     }
 }
